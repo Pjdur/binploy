@@ -2,7 +2,8 @@
 
 Installgen is a tool to make install scripts for other tools. It generates a PowerShell script that can be used to download and install a binary or archive from a given URL. (Later it might support bash and other shells)
 
-> AI note: I used AI to generate the PowerShell script because I'm not a PowerShell expert. The Rust code is majorly mine apart from some tweaks I used AI to do like adding a loop to the prompt if the input is empty. I've tested it a lot and it works well. If it doesn't work properly for you, please open an issue or a pull request to fix it.
+> I used AI to write the PowerShell (I don't know PowerShell). I tested it and it works well.
+However if you still have any issues open a pull request or issue.
 
 ## Installation
 

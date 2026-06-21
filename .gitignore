@@ -1,2 +1,4 @@
 /target
-*-installer.ps1 # generated installer scripts made because of testing.
+
+# ignore generated installer scripts
+*-installer.ps1
