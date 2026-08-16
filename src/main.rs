@@ -132,56 +132,50 @@ fi
 
 # 2. Download
 echo -e "\e[33m[2/4] Downloading binaries...\e[0m"
-EXTENSION="${{URL##*.}}"
-DEST_FILE="$TEMP_FILE.$EXTENSION"
 
 if command -v curl &> /dev/null; then
-    curl -L -o "$DEST_FILE" "$URL"
+    curl -fsSL -o "$TEMP_FILE" "$URL"
 elif command -v wget &> /dev/null; then
-    wget -O "$DEST_FILE" "$URL"
+    wget -q -O "$TEMP_FILE" "$URL"
 else
     echo -e "\e[31mERROR: Neither curl nor wget found.\e[0m"
     exit 1
 fi
 
-if [ $? -ne 0 ]; then
-    echo -e "\e[31mERROR: Failed to download.\e[0m"
-    exit 1
-fi
-
 # 3. Extract or Move
-if [ "$EXTENSION" == "zip" ]; then
+if [[ "$URL" == *.zip ]]; then
     echo -e "\e[33m[3/4] Extracting ZIP...\e[0m"
     if command -v unzip &> /dev/null; then
-        unzip -o "$DEST_FILE" -d "$INSTALL_DIR"
-        rm "$DEST_FILE"
+        unzip -o "$TEMP_FILE" -d "$INSTALL_DIR"
+        rm -f "$TEMP_FILE"
     else
-        echo -e "\e[31mERROR: 'unzip' not found.\e[0m"
+        echo -e "\e[31mERROR: 'unzip' command not found.\e[0m"
         exit 1
     fi
 else
-    echo -e "\e[33m[3/4] Moving binary...\e[0m"
-    mv "$DEST_FILE" "$INSTALL_DIR/{project_name}.$EXTENSION"
+    echo -e "\e[33m[3/4] Installing binary to $INSTALL_DIR/{project_name}...\e[0m"
+    mv "$TEMP_FILE" "$INSTALL_DIR/{project_name}"
 fi
 
-chmod +x "$INSTALL_DIR"/* 2>/dev/null || true
+chmod +x "$INSTALL_DIR/{project_name}" 2>/dev/null || true
 
-# 4. Add to PATH
+# 4. Add to PATH based on active shell
 echo -e "\e[33m[4/4] Adding $INSTALL_DIR to User PATH...\e[0m"
 
 if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-    SHELL_RC=""
-    if [ -f "$HOME/.bashrc" ]; then
-        SHELL_RC="$HOME/.bashrc"
-    elif [ -f "$HOME/.zshrc" ]; then
+    USER_SHELL="$(basename "${SHELL:-bash}")"
+    
+    if [ "$USER_SHELL" = "zsh" ]; then
         SHELL_RC="$HOME/.zshrc"
+    elif [ "$USER_SHELL" = "bash" ]; then
+        SHELL_RC="$HOME/.bashrc"
     elif [ -f "$HOME/.profile" ]; then
         SHELL_RC="$HOME/.profile"
     else
-        SHELL_RC="$HOME/.bashrc"
-        touch "$SHELL_RC"
+        SHELL_RC="$HOME/.profile"
     fi
 
+    touch "$SHELL_RC"
     echo "" >> "$SHELL_RC"
     echo "# Added by {project_name} installer on $(date)" >> "$SHELL_RC"
     echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$SHELL_RC"
@@ -192,7 +186,6 @@ else
 fi
 
 echo -e "\e[32mDone!\e[0m"
-read -p "Press enter to exit..."
 "##,
             project_name = project_name,
             download_url = download_url,
