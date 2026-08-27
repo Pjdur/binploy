@@ -163,7 +163,7 @@ chmod +x "$INSTALL_DIR/{project_name}" 2>/dev/null || true
 echo -e "\e[33m[4/4] Adding $INSTALL_DIR to User PATH...\e[0m"
 
 if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
-    USER_SHELL="$(basename "${SHELL:-bash}")"
+    USER_SHELL="$(basename "${{SHELL:-bash}}")"
     
     if [ "$USER_SHELL" = "zsh" ]; then
         SHELL_RC="$HOME/.zshrc"
